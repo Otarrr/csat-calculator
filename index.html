@@ -1,125 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CSAT Calculator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background: #1e1e2f;
-      color: #f0f0f0;
+      background-color: #2b2c3b;
+      font-family: Arial, sans-serif;
+      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
       margin: 0;
-      padding: 1rem;
     }
-    .card {
-      background: #2c2c3e;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      max-width: 400px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    h2 {
+    .container {
+      background-color: #3b3c4f;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      width: 320px;
       text-align: center;
-      margin-bottom: 1rem;
+    }
+    input, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
     }
     input, select {
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #444;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-      background: #3a3a4f;
+      background-color: #4a4b5e;
       color: #fff;
-      box-sizing: border-box;
     }
     button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
+      cursor: pointer;
+    }
+    .calculate-btn {
       background-color: #007bff;
       color: white;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      margin-bottom: 0.5rem;
-      box-sizing: border-box;
     }
-    button:hover {
-      background-color: #0056b3;
+    .clear-btn {
+      background-color: #6c757d;
+      color: white;
     }
-    .result {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      text-align: center;
+    .results {
       background-color: #14532d;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
       color: #ffffff;
     }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="container">
     <h2>CSAT Calculator</h2>
-    <input type="number" id="total" placeholder="Total surveys">
-    <input type="number" id="dsat" placeholder="DSAT responses">
-
-    <label for="goal">Target CSAT % (optional):</label>
-    <select id="goal">
-      <option value="90" selected>90%</option>
+    <input type="number" id="totalSurveys" placeholder="Total Surveys" />
+    <input type="number" id="dsatSurveys" placeholder="DSAT Responses" />
+    <label for="target">Target CSAT % (optional):</label>
+    <select id="target">
+      <option value="" disabled selected>Select target</option>
       <script>
         for (let i = 83; i <= 100; i++) {
           document.write(`<option value="${i}">${i}%</option>`);
         }
       </script>
     </select>
-
-    <button onclick="calculateCSAT()">Calculate</button>
-    <button onclick="clearFields()" style="background-color: #6c757d;">Clear</button>
-    <div id="result" class="result"></div>
+    <button class="calculate-btn" onclick="calculateCSAT()">Calculate</button>
+    <button class="clear-btn" onclick="clearForm()">Clear</button>
+    <div class="results" id="results"></div>
   </div>
-
   <script>
     function calculateCSAT() {
-      const total = parseFloat(document.getElementById("total").value);
-      const dsat = parseFloat(document.getElementById("dsat").value);
-      const goal = parseFloat(document.getElementById("goal").value);
-      const result = document.getElementById("result");
+      const total = parseInt(document.getElementById("totalSurveys").value);
+      const dsat = parseInt(document.getElementById("dsatSurveys").value);
+      const target = parseInt(document.getElementById("target").value);
+      const resultsDiv = document.getElementById("results");
 
       if (isNaN(total) || isNaN(dsat) || total <= 0 || dsat < 0 || dsat > total) {
-        result.textContent = "Please enter valid numbers.";
+        resultsDiv.innerHTML = "<p>Please enter valid numbers.</p>";
         return;
       }
 
       const dsatPercent = (dsat / total) * 100;
-      const csatPercent = 100 - dsatPercent;
+      const csatScore = 100 - dsatPercent;
 
-      const targetDsatRatio = 1 - (goal / 100);
-      const targetMaxDsats = Math.floor(total * targetDsatRatio);
-      const additionalSurveys = dsat > targetMaxDsats ? Math.ceil((dsat / (1 - goal / 100)) - total) : 0;
+      let message = `<strong>Total Surveys:</strong> ${total}<br />` +
+                    `<strong>DSAT Responses:</strong> ${dsat} (${dsatPercent.toFixed(2)}%)<br />` +
+                    `<strong>CSAT Score:</strong> ${csatScore.toFixed(2)}%<br />`;
 
-      result.innerHTML = `
-        <div>Total Surveys: ${total}</div>
-        <div>DSAT Responses: ${dsat} (${dsatPercent.toFixed(2)}%)</div>
-        <div>CSAT Score: ${csatPercent.toFixed(2)}%</div>
-        ${additionalSurveys > 0 ? `<div>Additional 100% CSAT surveys needed to reach ${goal}%: <strong>${additionalSurveys}</strong></div>` : `<div>You are at or above ${goal}% 🎉</div>`}
-      `;
+      if (!isNaN(target)) {
+        const requiredSurveys = Math.ceil((dsat * 100) / (100 - target) - total);
+        if (requiredSurveys > 0) {
+          message += `<strong>Additional 100% CSAT surveys needed to reach ${target}%:</strong> ${requiredSurveys}`;
+        } else {
+          message += `<strong>You are at or above ${target}%</strong> 🎉`;
+        }
+      }
+
+      resultsDiv.innerHTML = message;
     }
 
-    function clearFields() {
-      document.getElementById("total").value = "";
-      document.getElementById("dsat").value = "";
-      document.getElementById("goal").value = "90";
-      document.getElementById("result").innerHTML = "";
+    function clearForm() {
+      document.getElementById("totalSurveys").value = "";
+      document.getElementById("dsatSurveys").value = "";
+      document.getElementById("target").selectedIndex = 0;
+      document.getElementById("results").innerHTML = "";
     }
   </script>
 </body>
